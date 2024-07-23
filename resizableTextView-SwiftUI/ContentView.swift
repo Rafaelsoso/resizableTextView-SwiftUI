@@ -25,6 +25,7 @@ struct Home: View {
     @State var txt = ""
     @State var height: CGFloat = 0
     @State var keyboardHeight: CGFloat = 0
+    @State var isKeyboardShown: Bool = false
 
     var body: some View {
         VStack(spacing: 0){
@@ -32,7 +33,6 @@ struct Home: View {
                 Text("Chats")
                     .font(.title)
                     .fontWeight(.bold)
-                
                 Spacer()
             }.padding()
             .background(Color.white)
@@ -49,7 +49,7 @@ struct Home: View {
 
             VStack {
                 HStack {
-                    ResizableTF(txt: $txt, height: $height)
+                    ResizableTF(txt: $txt, height: $height, isKeyboardShown: $isKeyboardShown)
                         .frame(height: self.height < 150 ? self.height : 150)
                         .padding(.horizontal)
                         .background(Color.white)
@@ -64,29 +64,31 @@ struct Home: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
-            HStack {
+            if isKeyboardShown {
                 HStack {
-                    Text("[投稿ガイドライン](myappurl://action)").underline() +
-                    Text("に関するテキスト")
-                }.onOpenURL { link in
+                    HStack {
+                        Text("[投稿ガイドライン](myappurl://action)").underline() +
+                        Text("に関するテキスト")
+                    }.onOpenURL { link in
 
-                }
-                Spacer()
-                HStack {
-                    Text("00/000")
-                    Button {
-                        // action
-                    } label: {
-                        Text("投稿")
-                            .frame(width: 64, height: 36)
-                            .foregroundColor(.white)
-                            .padding(13)
                     }
-                    .background(.blue)
-                    .cornerRadius(3)
+                    Spacer()
+                    HStack {
+                        Text("00/000")
+                        Button {
+                            // action
+                        } label: {
+                            Text("投稿")
+                                .frame(width: 64, height: 36)
+                                .foregroundColor(.white)
+                                .padding(13)
+                        }
+                        .background(.blue)
+                        .cornerRadius(3)
+                    }
                 }
+                .padding(.horizontal, 12)
             }
-            .padding(.horizontal, 12)
         }
         .padding(.bottom, self.keyboardHeight)
         .background(Color.black.opacity(0.06).edgesIgnoringSafeArea(.bottom))
@@ -104,7 +106,6 @@ struct Home: View {
 //        }
     }
 }
-
 
 struct Comment: View {
     var body: some View {
@@ -126,10 +127,11 @@ struct Comment: View {
 }
 
 struct ResizableTF: UIViewRepresentable {
-    
+
     @Binding var txt: String
     @Binding var height: CGFloat
-    
+    @Binding var isKeyboardShown: Bool
+
     func makeCoordinator() -> Coordinator {
         return ResizableTF.Coordinator(parent1: self)
     }
@@ -176,6 +178,7 @@ struct ResizableTF: UIViewRepresentable {
             if let placeholder = textView.subviews.first(where: { $0.tag == 1 }) {
                 placeholder.isHidden = !textView.text.isEmpty
             }
+            parent.isKeyboardShown = true
         }
         
         func textViewDidChange(_ textView: UITextView) {
@@ -192,6 +195,7 @@ struct ResizableTF: UIViewRepresentable {
             if let placeholder = textView.subviews.first(where: { $0.tag == 1 }) {
                 placeholder.isHidden = !textView.text.isEmpty
             }
+            parent.isKeyboardShown = false
         }
     }
 }
